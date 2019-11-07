@@ -30,11 +30,9 @@ function module.createbar(s)
             {
                 -- left widgets
                 {
-                    require('gui.widgets.pie'),
                     taglist.make_tag_list(s),
                     s.promptbox,
                     layout = wibox.layout.fixed.horizontal,
-                    spacing = 10,
                 },
                 --middle widget
                 {
@@ -42,7 +40,6 @@ function module.createbar(s)
                 },
                 -- left widget
                 {
-                    require('gui.widgets.media_player'),
                     s.volume_control,
                     s.layoutbox,
                     s.textclock,
