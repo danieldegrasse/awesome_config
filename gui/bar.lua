@@ -54,10 +54,10 @@ function module.createbar(s)
         shape = function (cr,w,h) return gears.shape.rounded_rect(cr,w,h,beautiful.wibar_radius) end,
         widget = wibox.container.background,
         },
-        left = 5,
-        right = 5,
+        left = 0,
+        right = 0,
         bottom = 0,
-        top = 5,
+        top = 0,
         widget = wibox.container.margin,
     })
 end
