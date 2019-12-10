@@ -248,6 +248,7 @@ awful.rules.rules = {
 
     -- Add titlebars to normal clients and dialogs
     { rule_any = {type = { "normal", "dialog" }
+      -- do not disable titlebars here, disable in theme settings
       }, properties = { titlebars_enabled = true }
     },
 
@@ -270,8 +271,12 @@ client.connect_signal("manage", function (c)
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
     end
-    -- round corners less than titlebar amount to avoid aliasing
-    c.shape = function (cr,w,h) return gears.shape.rounded_rect(cr,w,h,beautiful.corner_radius-3) end
+    -- round the corners if smoothing was not requested (edges may be rough)
+    if (not beautiful.smooth_corners) then
+        c.shape = function (cr,w,h) 
+                      return gears.shape.rounded_rect(cr,w,h,beautiful.corner_radius) 
+                  end
+    end
 end)
 
 client.connect_signal("request::activate", function(client,context,hints)

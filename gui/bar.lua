@@ -1,5 +1,5 @@
 --[[
-Lays out defenition for our custom sidebar
+Lays out definition for our custom sidebar
 --]]
 local awful = require("awful")
 local gears = require("gears")
