@@ -66,8 +66,8 @@ modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
-    awful.layout.suit.tile,
     awful.layout.suit.floating,
+    awful.layout.suit.tile,
     -- awful.layout.suit.tile.left,
     -- awful.layout.suit.tile.bottom,
     -- awful.layout.suit.tile.top,
@@ -262,13 +262,24 @@ awful.rules.rules = {
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c)
     -- Set the windows at the slave,
+    -- NOTE: when composing placement functions, the last function has the highest
+    -- Priority. IE if no_overlap is last a window will never overlap, but if
+    -- no_offscreen is last a window will never be offscreen
     -- i.e. put it at the end of others instead of setting it master.
     if not awesome.startup then 
-        if not awful.placement.restore(c) then 
-            -- new client, set up new focus
-            local focus = ( awful.placement.no_offscreen +
-                awful.placement.scale)
-            focus(c,{to_percent = 0.8})
+        -- make sure that we are in a floating layout before messing with layout
+        if c.floating then
+            if not c.size_hints.user_position
+                and not c.size_hints.program_position then
+                -- attempt to restore last layout
+                if not awful.placement.restore(c) then 
+                    -- new client, set up new focus
+                    local focus = (awful.placement.left +
+                                    awful.placement.no_overlap +
+                                    awful.placement.no_offscreen)
+                    focus(c,{margins = 5})
+                end
+            end
         end
         awful.client.setslave(c) 
     end
@@ -277,11 +288,10 @@ client.connect_signal("manage", function (c)
       and not c.size_hints.user_position
       and not c.size_hints.program_position then
         -- Prevent clients from being unreachable after screen count changes.
-        local focus = (awful.placement.no_overlap +
-            awful.placement.no_offscreen +
-            awful.placement.centered +
-            awful.placement.scale)
-        focus(c,{to_percent = 0.8})
+        local focus = (awful.placement.left +
+                        awful.placement.no_overlap +
+                        awful.placement.no_offscreen)
+        focus(c,{margins = 5})
     end
     -- round the corners if smoothing was not requested (edges may be rough)
     if (not beautiful.smooth_corners) then
