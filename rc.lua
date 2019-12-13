@@ -263,13 +263,25 @@ awful.rules.rules = {
 client.connect_signal("manage", function (c)
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
-    if not awesome.startup then awful.client.setslave(c) end
+    if not awesome.startup then 
+        if not awful.placement.restore(c) then 
+            -- new client, set up new focus
+            local focus = ( awful.placement.no_offscreen +
+                awful.placement.scale)
+            focus(c,{to_percent = 0.8})
+        end
+        awful.client.setslave(c) 
+    end
 
     if awesome.startup
       and not c.size_hints.user_position
       and not c.size_hints.program_position then
         -- Prevent clients from being unreachable after screen count changes.
-        awful.placement.no_offscreen(c)
+        local focus = (awful.placement.no_overlap +
+            awful.placement.no_offscreen +
+            awful.placement.centered +
+            awful.placement.scale)
+        focus(c,{to_percent = 0.8})
     end
     -- round the corners if smoothing was not requested (edges may be rough)
     if (not beautiful.smooth_corners) then
