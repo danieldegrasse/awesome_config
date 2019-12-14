@@ -57,6 +57,9 @@ terminal = "alacritty"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
+-- AUTOSTART
+awful.spawn.with_shell("source ~/.config/awesome/autorun.sh")
+
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
 -- If you do not like this or do not have such a key,
@@ -277,7 +280,7 @@ client.connect_signal("manage", function (c)
                     local focus = (awful.placement.left +
                                     awful.placement.no_overlap +
                                     awful.placement.no_offscreen)
-                    focus(c,{margins = 5})
+                    focus(c,{margins = 0})
                 end
             end
         end
@@ -291,7 +294,7 @@ client.connect_signal("manage", function (c)
         local focus = (awful.placement.left +
                         awful.placement.no_overlap +
                         awful.placement.no_offscreen)
-        focus(c,{margins = 5})
+        focus(c,{margins = 0})
     end
     -- round the corners if smoothing was not requested (edges may be rough)
     if (not beautiful.smooth_corners) then
