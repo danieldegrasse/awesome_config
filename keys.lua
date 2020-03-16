@@ -1,7 +1,7 @@
 -- Global Key Bindings
 local gears = require("gears")
 local awful = require("awful")
-
+terminal = "termite"
 globalkeys = gears.table.join(
     -- media controls
     awful.key({         }, "XF86AudioPlay", 

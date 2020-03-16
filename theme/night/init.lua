@@ -57,7 +57,7 @@ t.titlebar_bg_focus     = invisible
 t.corner_radius = dpi(4)
 -- if true, applies corners to titlebar, otherwise applies them to client.
 --  client applied rounding will not be smoothed
-t.smooth_corners = false
+t.smooth_corners = true
 
 t.side_border_width = dpi(0) -- use this to change width on sides of windows
 t.vertical_border_width = dpi(0) -- changes width on vertical bounds of window

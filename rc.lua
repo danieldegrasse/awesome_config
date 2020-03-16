@@ -19,7 +19,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 local bar = require("gui.bar")
 local titlebar = require('gui.custom_titlebar')
 
-
+terminal = "terminal"
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
@@ -53,7 +53,6 @@ end
 -- beautifuls define colours, icons, font and wallpapers.
 
 -- This is used later as the default terminal and editor to run.
-terminal = "alacritty"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -211,8 +210,8 @@ awful.rules.rules = {
                      keys = clientkeys,
                      buttons = clientbuttons,
                      screen = awful.screen.preferred,
-                     placement = awful.placement.left + awful.placement.no_overlap + awful.placement.no_offscreen
-     }
+                     placement = awful.placement.no_overlap
+                     }
     },
 
     -- Floating clients.
@@ -279,12 +278,11 @@ client.connect_signal("manage", function (c)
                         awful.placement.no_offscreen)
         focus(c)
     end
-    -- round the corners if smoothing was not requested (edges may be rough)
-    if (not beautiful.smooth_corners) then
-        c.shape = function (cr,w,h) 
-                      return gears.shape.rounded_rect(cr,w,h,beautiful.corner_radius) 
-                  end
-    end
+    -- round the corners to request radius
+    c.shape = function (cr,w,h) 
+                      return gears.shape.rounded_rect(
+                        cr,w,h,beautiful.corner_radius) 
+              end
 end)
 
 client.connect_signal("request::activate", function(client,context,hints)
