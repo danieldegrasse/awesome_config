@@ -5,9 +5,6 @@ pcall(require, "luarocks.loader")
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
--- Theme handling library
-local beautiful = require("beautiful")
-beautiful.init(require('theme'))
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
@@ -18,122 +15,74 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- gui features (top bar, client decorations)
 local bar = require("gui.bar")
 local titlebar = require('gui.custom_titlebar')
+local config = require("config")
 
-terminal = "terminal"
+terminal = config.terminal
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
--- {{{ Error handling
--- Check if awesome encountered an error during startup and fell back to
--- another config (This code will only ever execute for the fallback config)
-if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
-end
 
--- Handle runtime errors after startup
-do
-    local in_error = false
-    awesome.connect_signal("debug::error", function (err)
-        -- Make sure we don't go into an endless error loop
-        if in_error then return end
-        in_error = true
-
+local function error_handling_setup()
+    -- {{{ Error handling
+    -- Check if awesome encountered an error during startup and fell back to
+    -- another config (This code will only ever execute for the fallback config)
+    if awesome.startup_errors then
         naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Oops, an error happened!",
-                         text = tostring(err) })
-        in_error = false
+                         title = "Oops, there were errors during startup!",
+                         text = awesome.startup_errors })
+    end
+    
+    -- Handle runtime errors after startup
+    do
+        local in_error = false
+        awesome.connect_signal("debug::error", function (err)
+            -- Make sure we don't go into an endless error loop
+            if in_error then return end
+            in_error = true
+    
+            naughty.notify({ preset = naughty.config.presets.critical,
+                             title = "Oops, an error happened!",
+                             text = tostring(err) })
+            in_error = false
+        end)
+    end
+end
+-- Set the modkey from config
+modkey =  config.modkey
+-- Table of layouts to cover with awful.layout.inc, order matters.
+awful.layout.layouts = config.layouts
+local function screen_setup()
+    -- Create a wibox for each screen and add it
+    local function set_wallpaper(s)
+        -- Wallpaper
+        if config.beautiful.wallpaper then
+            local wallpaper = config.beautiful.wallpaper
+            -- If wallpaper is a function, call it with the screen
+            if type(wallpaper) == "function" then
+                wallpaper = wallpaper(s)
+            end
+            gears.wallpaper.maximized(wallpaper, s, true)
+        end
+    end
+    local function set_tags(s)
+        awful.tag(
+        config.tags,
+        s,
+        awful.layout.layouts[1]
+        ) 
+        end
+    -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
+    screen.connect_signal("property::geometry", set_wallpaper)
+    
+    awful.screen.connect_for_each_screen(function(s)
+        -- Wallpaper
+        set_wallpaper(s)
+        set_tags(s)
+        bar.createbar(s)
     end)
 end
--- }}}
 
--- {{{ Variable definitions
--- beautifuls define colours, icons, font and wallpapers.
-
--- This is used later as the default terminal and editor to run.
-editor = os.getenv("EDITOR") or "vim"
-editor_cmd = terminal .. " -e " .. editor
-
--- Default modkey.
--- Usually, Mod4 is the key with a logo between Control and Alt.
--- If you do not like this or do not have such a key,
--- I suggest you to remap Mod4 to another key using xmodmap or other tools.
--- However, you can use another modifier like Mod1, but it may interact with others.
-modkey = "Mod4"
-
--- Table of layouts to cover with awful.layout.inc, order matters.
-awful.layout.layouts = {
-    awful.layout.suit.floating,
-    awful.layout.suit.tile,
-    -- awful.layout.suit.tile.left,
-    -- awful.layout.suit.tile.bottom,
-    -- awful.layout.suit.tile.top,
-    -- awful.layout.suit.fair,
-    -- awful.layout.suit.fair.horizontal,
-    -- awful.layout.suit.spiral,
-    -- awful.layout.suit.spiral.dwindle,
-    -- awful.layout.suit.max,
-    -- awful.layout.suit.max.fullscreen,
-    -- awful.layout.suit.magnifier,
-    -- awful.layout.suit.corner.nw,
-    -- awful.layout.suit.corner.ne,
-    -- awful.layout.suit.corner.sw,
-    -- awful.layout.suit.corner.se,
-}
--- Menubar configuration
-menubar.utils.terminal = terminal -- Set the terminal for applications that require it
--- }}}
-
--- Keyboard map indicator and switcher
-
--- Create a textclock widget
-
--- Create a wibox for each screen and add it
-local function set_wallpaper(s)
-    -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, true)
-    end
-end
-
-local function set_tags(s)
-    awful.tag(
-    {utf8.char(64610), 
-     utf8.char(64610), 
-     utf8.char(64610), 
-     utf8.char(64610), 
-     utf8.char(64610)
-     }, 
-    s,
-    awful.layout.layouts[1]
-    ) 
-    end
--- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
-
-awful.screen.connect_for_each_screen(function(s)
-    -- Wallpaper
-    set_wallpaper(s)
-    set_tags(s)
-    bar.createbar(s)
-end)
-
-
--- }}}
-
--- {{{ Mouse bindings
-root.buttons(gears.table.join(
-    awful.button({ }, 4, awful.tag.viewnext),
-    awful.button({ }, 5, awful.tag.viewprev)
-))
--- }}}
 
 
 clientkeys = gears.table.join(
@@ -309,4 +258,3 @@ client.connect_signal("unfocus", function(c)
     c.border_color = beautiful.border_normal 
     titlebar.unfocus_titlebar(c)
 end)
--- }}}
